@@ -4,10 +4,12 @@ import CartIcon from "../assets/icons/cart.svg";
 import CategoriesIcon from "../assets/icons/categories.svg";
 import HomeIcon from "../assets/icons/home.svg";
 import ProfileIcon from "../assets/icons/profile.svg";
-import CartScreen from "../features/CartScreen";
-import CategoriesScreen from "../features/CategoriesScreen";
-import HomeScreen from "../features/HomeScreen";
-import ProfileScreen from "../features/ProfileScreen";
+import {
+    CartStackNavigator,
+    CategoriesStackNavigator,
+    HomeStackNavigator,
+    ProfileStackNavigator,
+} from "./TabStacks";
 
 export type MainTabParamList = {
     Home: undefined;
@@ -42,10 +44,10 @@ export default function HomeTabs() {
                 },
             })}
         >
-            <Tab.Screen name="Home" component={HomeScreen} />
-            <Tab.Screen name="Categories" component={CategoriesScreen} />
-            <Tab.Screen name="Cart" component={CartScreen} />
-            <Tab.Screen name="Profile" component={ProfileScreen} />
+            <Tab.Screen name="Home" component={HomeStackNavigator} />
+            <Tab.Screen name="Categories" component={CategoriesStackNavigator} />
+            <Tab.Screen name="Cart" component={CartStackNavigator} />
+            <Tab.Screen name="Profile" component={ProfileStackNavigator} />
         </Tab.Navigator>
     );
 }

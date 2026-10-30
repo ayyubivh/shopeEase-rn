@@ -12,7 +12,7 @@ import {
 } from "react-native";
 import { useNavigation } from "@react-navigation/native";
 import type { NativeStackNavigationProp } from "@react-navigation/native-stack";
-import type { RootStackParamList } from "../navigation/AppNavigator";
+import type { HomeStackParamList } from "../navigation/TabStacks";
 import ProductCard from "../components/ProductCard";
 import Screen from "../components/Screen";
 import { useAuthStore } from "../store/authStore";
@@ -24,7 +24,7 @@ const HOME_LIMIT = 10;
 const CARD_WIDTH = 160;
 
 export default function HomeScreen() {
-    const navigation = useNavigation<NativeStackNavigationProp<RootStackParamList>>();
+    const navigation = useNavigation<NativeStackNavigationProp<HomeStackParamList>>();
     const user = useAuthStore((s) => s.user);
     const {
         products,
@@ -132,7 +132,7 @@ export default function HomeScreen() {
     );
 
     return (
-        <Screen style={styles.screen}>
+        <Screen style={styles.screen} edges={["left", "right"]}>
             <ScrollView
                 contentContainerStyle={styles.content}
                 showsVerticalScrollIndicator={false}

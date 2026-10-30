@@ -1,20 +1,19 @@
 import React, { useEffect, useState } from "react";
-import { ActivityIndicator, FlatList, Pressable, StyleSheet, Text, View } from "react-native";
-import { useNavigation, useRoute } from "@react-navigation/native";
+import { ActivityIndicator, FlatList, StyleSheet, Text, View } from "react-native";
+import { useRoute } from "@react-navigation/native";
 import type { NativeStackScreenProps } from "@react-navigation/native-stack";
 import ProductCard from "../components/ProductCard";
 import Screen from "../components/Screen";
-import type { RootStackParamList } from "../navigation/AppNavigator";
+import type { HomeStackParamList } from "../navigation/TabStacks";
 import { useProductStore } from "../store/productStore";
 import { colors } from "../theme/colors";
 import { spacing } from "../theme/spacing";
 
 const PAGE_SIZE = 6;
 
-type Props = NativeStackScreenProps<RootStackParamList, "ProductListing">;
+type Props = NativeStackScreenProps<HomeStackParamList, "ProductListing">;
 
 export default function ProductListingScreen(_: Props) {
-    const navigation = useNavigation();
     const category = useRoute<Props["route"]>().params?.category ?? null;
     const { products, productsLoading: isLoading, productsError: error, fetchProducts } = useProductStore();
     const [page, setPage] = useState(1);
@@ -31,13 +30,7 @@ export default function ProductListingScreen(_: Props) {
     const hasMore = visible.length < filtered.length;
 
     return (
-        <Screen>
-            <View style={styles.header}>
-                <Pressable onPress={navigation.goBack} hitSlop={12}>
-                    <Text style={styles.back}>‹ Back</Text>
-                </Pressable>
-                <Text style={styles.title}>{category ?? "All products"}</Text>
-            </View>
+        <Screen edges={["left", "right", "bottom"]}>
             <FlatList
                 data={visible}
                 keyExtractor={(p) => String(p.id)}
@@ -66,10 +59,7 @@ export default function ProductListingScreen(_: Props) {
 }
 
 const styles = StyleSheet.create({
-    header: { paddingVertical: spacing.md },
-    back: { fontSize: 16, fontWeight: "600", color: colors.primary },
-    title: { marginTop: spacing.sm, fontSize: 26, fontWeight: "800", color: colors.textPrimary },
-    content: { paddingBottom: spacing.lg },
+    content: { paddingTop: spacing.md, paddingBottom: spacing.lg },
     columns: { gap: 12, marginBottom: 12 },
     cell: { flex: 1 },
     footer: { paddingVertical: spacing.md },
