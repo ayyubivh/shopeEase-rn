@@ -31,17 +31,17 @@ export const useAuthStore = create<AuthState>((set) => ({
     ...loadSession(),
     isLoading: false,
     error: null,
-
     login: async (email, password) => {
         set({ isLoading: true, error: null });
         try {
-            
+
             const data = await loginApi(email, password);
             api.defaults.headers.common.Authorization = `Bearer ${data.token}`;
             storage.set(STORAGE_KEYS.token, data.token);
             storage.set(STORAGE_KEYS.user, JSON.stringify(data.user));
             set({ token: data.token, user: data.user, isLoading: false });
             return true;
+
         } catch (e) {
 
             const message = e instanceof Error ? e.message : "Something went wrong. Please try again.";
@@ -49,7 +49,6 @@ export const useAuthStore = create<AuthState>((set) => ({
             return false;
         }
     },
-
     logout: () => {
         delete api.defaults.headers.common.Authorization;
         storage.remove(STORAGE_KEYS.token);
