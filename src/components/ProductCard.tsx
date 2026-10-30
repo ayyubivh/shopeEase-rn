@@ -1,6 +1,6 @@
 import React from "react";
 import { Image, StyleProp, StyleSheet, Text, View, ViewStyle } from "react-native";
-import { Product } from "../api/products";
+import { Product } from "../api/types";
 import { colors, homeColors } from "../theme/colors";
 
 type ProductCardProps = {

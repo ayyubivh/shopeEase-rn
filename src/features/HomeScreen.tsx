@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo, useState } from "react";
+import React, { useCallback, useMemo, useState } from "react";
 import {
     ActivityIndicator,
     FlatList,
@@ -15,37 +15,32 @@ import type { NativeStackNavigationProp } from "@react-navigation/native-stack";
 import type { HomeStackParamList } from "../navigation/TabStacks";
 import ProductCard from "../components/ProductCard";
 import Screen from "../components/Screen";
+import type { Category, Product } from "../api/types";
+import { useCategories, useProducts } from "../hooks/useCatalog";
 import { useAuthStore } from "../store/authStore";
-import { useProductStore } from "../store/productStore";
 import { colors, homeColors } from "../theme/colors";
 import { spacing } from "../theme/spacing";
 
 const HOME_LIMIT = 10;
 const CARD_WIDTH = 160;
+const NO_PRODUCTS: Product[] = [];
+const NO_CATEGORIES: Category[] = [];
 
 export default function HomeScreen() {
     const navigation = useNavigation<NativeStackNavigationProp<HomeStackParamList>>();
     const user = useAuthStore((s) => s.user);
-    const {
-        products,
-        productsLoading: isLoading,
-        productsError: error,
-        fetchProducts,
-        categories,
-        fetchCategories,
-    } = useProductStore();
+    const { data: productsData, isLoading, error, reload: reloadProducts } = useProducts();
+    const { data: categoriesData, reload: reloadCategories } = useCategories();
+    const products = productsData ?? NO_PRODUCTS;
+    const categories = categoriesData ?? NO_CATEGORIES;
     const [query, setQuery] = useState("");
     const [category, setCategory] = useState<string | null>(null);
 
-    useEffect(() => {
-        fetchProducts();
-        fetchCategories();
-    }, [fetchProducts, fetchCategories]);
-
-    const refresh = () => {
-        fetchProducts();
-        fetchCategories();
-    };
+    // Categories are optional UI, so a failure there must not blank the whole screen.
+    const load = useCallback(() => {
+        reloadProducts();
+        reloadCategories();
+    }, [reloadProducts, reloadCategories]);
 
     const visible = useMemo(() => {
         const q = query.trim().toLowerCase();
@@ -123,7 +118,7 @@ export default function HomeScreen() {
     ) : error ? (
         <View style={styles.state}>
             <Text style={styles.errorText}>{error}</Text>
-            <Pressable onPress={fetchProducts}>
+            <Pressable onPress={load}>
                 <Text style={styles.seeAll}>Retry</Text>
             </Pressable>
         </View>
@@ -137,7 +132,7 @@ export default function HomeScreen() {
                 contentContainerStyle={styles.content}
                 showsVerticalScrollIndicator={false}
                 keyboardShouldPersistTaps="handled"
-                refreshControl={<RefreshControl refreshing={isLoading && products.length > 0} onRefresh={refresh} />}
+                refreshControl={<RefreshControl refreshing={isLoading && products.length > 0} onRefresh={load} />}
 
             >
                 {header}

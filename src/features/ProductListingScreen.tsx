@@ -1,11 +1,11 @@
-import React, { useEffect, useState } from "react";
+import React, { useState } from "react";
 import { ActivityIndicator, FlatList, StyleSheet, Text, View } from "react-native";
 import { useRoute } from "@react-navigation/native";
 import type { NativeStackScreenProps } from "@react-navigation/native-stack";
 import ProductCard from "../components/ProductCard";
 import Screen from "../components/Screen";
 import type { HomeStackParamList } from "../navigation/TabStacks";
-import { useProductStore } from "../store/productStore";
+import { useProducts } from "../hooks/useCatalog";
 import { colors } from "../theme/colors";
 import { spacing } from "../theme/spacing";
 
@@ -15,14 +15,9 @@ type Props = NativeStackScreenProps<HomeStackParamList, "ProductListing">;
 
 export default function ProductListingScreen(_: Props) {
     const category = useRoute<Props["route"]>().params?.category ?? null;
-    const { products, productsLoading: isLoading, productsError: error, fetchProducts } = useProductStore();
+    const { data, isLoading, error } = useProducts();
+    const products = data ?? [];
     const [page, setPage] = useState(1);
-
-    useEffect(() => {
-        if (products.length === 0) {
-            fetchProducts();
-        }
-    }, [products.length, fetchProducts]);
 
     // The API returns the full list, so paginate on the client.
     const filtered = category ? products.filter((p) => p.category === category) : products;
