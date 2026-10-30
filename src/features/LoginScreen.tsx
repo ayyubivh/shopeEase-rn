@@ -12,6 +12,7 @@ import PrimaryButton from "../components/PrimaryButton";
 import { useNavigation } from "@react-navigation/native";
 import { NativeStackNavigationProp } from "@react-navigation/native-stack";
 import { RootStackParamList } from "../navigation/AppNavigator";
+import { useAuthStore } from "../store/authStore";
 
 export default function LoginScreen() {
     const navigation = useNavigation<NativeStackNavigationProp<RootStackParamList>>();
@@ -19,6 +20,17 @@ export default function LoginScreen() {
     const [email, setEmail] = useState("");
     const [password, setPassword] = useState("");
     const [isPasswordVisible, setIsPasswordVisible] = useState(false);
+
+    const login = useAuthStore(state => state.login);
+    const isLoading = useAuthStore(state => state.isLoading);
+    const error = useAuthStore(state => state.error);
+
+    const handleLogin = async () => {
+        const success = await login(email.trim(), password);
+        if (success) {
+            navigation.replace("Main");
+        }
+    };
 
     return (
         <Screen style={styles.screen}>
@@ -66,7 +78,13 @@ export default function LoginScreen() {
                     autoCapitalize="none"
 
                 />
-                <PrimaryButton title="Login" onPress={() => navigation.navigate('Home')}></PrimaryButton>
+                {error ? <Text style={styles.error}>{error}</Text> : null}
+                <PrimaryButton
+                    title="Login"
+                    onPress={handleLogin}
+                    loading={isLoading}
+                    disabled={!email || !password || isLoading}
+                />
             </View>
             {/* <Text style={styles.forgotPassword}>Forgot password?</Text> */}
         </Screen>
@@ -104,6 +122,10 @@ const styles = StyleSheet.create({
         fontSize: 15,
         lineHeight: 22,
         color: colors.textSecondary,
+    },
+    error: {
+        fontSize: 14,
+        color: "#C0392B",
     },
     forgotPassword: {
         alignSelf: "flex-end",
