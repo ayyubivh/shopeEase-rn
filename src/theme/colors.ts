@@ -10,3 +10,13 @@ export const colors = {
 } as const;
 
 export type ColorName = keyof typeof colors;
+
+export const homeColors = {
+    surface: "#FFFFFF",
+    banner: "#344020",
+    bannerCircle: "#4A5A2D",
+    bannerText: "#D9DEC8",
+    imagePlaceholder: "#ECEFDF",
+    badge: "#B93A22",
+    error: "#B93A22",
+} as const;
