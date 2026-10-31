@@ -4,19 +4,14 @@ import CartIcon from "../assets/icons/cart.svg";
 import CategoriesIcon from "../assets/icons/categories.svg";
 import HomeIcon from "../assets/icons/home.svg";
 import ProfileIcon from "../assets/icons/profile.svg";
+import { selectCartCount, useCartStore } from "../store/cartStore";
+import type { MainTabParamList } from "./types";
 import {
     CartStackNavigator,
     CategoriesStackNavigator,
     HomeStackNavigator,
     ProfileStackNavigator,
 } from "./TabStacks";
-
-export type MainTabParamList = {
-    Home: undefined;
-    Categories: undefined;
-    Cart: undefined;
-    Profile: undefined;
-};
 
 const Tab = createBottomTabNavigator<MainTabParamList>();
 
@@ -31,6 +26,8 @@ const ACTIVE_COLOR = '#5B6B2D';
 const INACTIVE_COLOR = '#666B75';
 
 export default function HomeTabs() {
+    const cartCount = useCartStore(selectCartCount);
+
     return (
         <Tab.Navigator
             screenOptions={({ route }) => ({
@@ -46,7 +43,11 @@ export default function HomeTabs() {
         >
             <Tab.Screen name="Home" component={HomeStackNavigator} />
             <Tab.Screen name="Categories" component={CategoriesStackNavigator} />
-            <Tab.Screen name="Cart" component={CartStackNavigator} />
+            <Tab.Screen
+                name="Cart"
+                component={CartStackNavigator}
+                options={{ tabBarBadge: cartCount > 0 ? cartCount : undefined }}
+            />
             <Tab.Screen name="Profile" component={ProfileStackNavigator} />
         </Tab.Navigator>
     );

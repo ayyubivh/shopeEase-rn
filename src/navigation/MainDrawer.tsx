@@ -6,11 +6,7 @@ import CustomDrawerContent from "./CustomDrawerContent";
 import HomeTabs from "./HomeTabs";
 import { colors } from "../theme/colors";
 
-export type DrawerParamList = {
-    Tabs: undefined;
-    MyOrders: undefined;
-    Help: undefined;
-};
+import type { DrawerParamList } from "./types";
 
 const Drawer = createDrawerNavigator<DrawerParamList>();
 

@@ -1,5 +1,5 @@
 import React from "react";
-import { Pressable, StyleSheet, Text, View } from "react-native";
+import { Image, Pressable, StyleSheet, Text, View } from "react-native";
 import {
     DrawerContentComponentProps,
     DrawerContentScrollView,
@@ -15,9 +15,8 @@ export default function CustomDrawerContent(props: DrawerContentComponentProps) 
 
     const onLogout = () => {
         props.navigation.closeDrawer();
+        // The root navigator swaps back to the Auth stack once the token is cleared.
         logout();
-        // Reset so Main can't be navigated back to after sign-out.
-        props.navigation.getParent()?.reset({ index: 0, routes: [{ name: "Login" }] });
     };
 
     const name = user?.name ?? "Guest";
@@ -25,9 +24,13 @@ export default function CustomDrawerContent(props: DrawerContentComponentProps) 
     return (
         <DrawerContentScrollView {...props} contentContainerStyle={styles.scroll}>
             <View style={styles.profile}>
-                <View style={styles.avatar}>
-                    <Text style={styles.avatarText}>{name.charAt(0).toUpperCase()}</Text>
-                </View>
+                {user?.avatar ? (
+                    <Image source={{ uri: user.avatar }} style={styles.avatar} />
+                ) : (
+                    <View style={styles.avatar}>
+                        <Text style={styles.avatarText}>{name.charAt(0).toUpperCase()}</Text>
+                    </View>
+                )}
                 <Text style={styles.name}>{name}</Text>
                 {!!user?.email && <Text style={styles.email}>{user.email}</Text>}
             </View>

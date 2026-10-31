@@ -1,31 +1,79 @@
 import React from "react";
+import { Pressable, StyleSheet, Text } from "react-native";
+import { useNavigation } from "@react-navigation/native";
 import { createNativeStackNavigator } from "@react-navigation/native-stack";
+import {
+    CardStyleInterpolators,
+    StackCardStyleInterpolator,
+    StackNavigationOptions,
+    createStackNavigator,
+} from "@react-navigation/stack";
 import CartScreen from "../features/CartScreen";
 import CategoriesScreen from "../features/CategoriesScreen";
+import EditAddressScreen from "../features/EditAddressScreen";
 import HomeScreen from "../features/HomeScreen";
+import ProductDetailScreen from "../features/ProductDetailScreen";
 import ProductListingScreen from "../features/ProductListingScreen";
 import ProfileScreen from "../features/ProfileScreen";
+import { colors } from "../theme/colors";
 import MenuButton from "./MenuButton";
 import { stackScreenOptions } from "./stackOptions";
+import type {
+    CartStackParamList,
+    CategoriesStackParamList,
+    HomeStackParamList,
+    ProfileStackParamList,
+} from "./types";
 
-export type HomeStackParamList = {
-    HomeMain: undefined;
-    ProductListing: { category?: string | null } | undefined;
-};
-export type CategoriesStackParamList = { CategoriesMain: undefined };
-export type CartStackParamList = { CartMain: undefined };
-export type ProfileStackParamList = { ProfileMain: undefined };
-
-const HomeStack = createNativeStackNavigator<HomeStackParamList>();
+const HomeStack = createStackNavigator<HomeStackParamList>();
 const CategoriesStack = createNativeStackNavigator<CategoriesStackParamList>();
 const CartStack = createNativeStackNavigator<CartStackParamList>();
 const ProfileStack = createNativeStackNavigator<ProfileStackParamList>();
 
 const renderMenu = () => <MenuButton />;
 
+// Custom transition: the screen rises, scales up and fades in.
+const forRiseAndFade: StackCardStyleInterpolator = ({ current, layouts }) => ({
+    cardStyle: {
+        opacity: current.progress,
+        transform: [
+            {
+                translateY: current.progress.interpolate({
+                    inputRange: [0, 1],
+                    outputRange: [layouts.screen.height * 0.12, 0],
+                }),
+            },
+            { scale: current.progress.interpolate({ inputRange: [0, 1], outputRange: [0.92, 1] }) },
+        ],
+    },
+});
+
+const homeStackOptions: StackNavigationOptions = {
+    headerShadowVisible: false,
+    headerTintColor: colors.primary,
+    headerTitleStyle: { fontWeight: "700", color: colors.textPrimary },
+    cardStyle: { backgroundColor: colors.white },
+    gestureEnabled: true,
+};
+
+const styles = StyleSheet.create({
+    filterButton: { marginRight: 16 },
+    filterText: { fontSize: 16, fontWeight: "700", color: colors.primary },
+});
+
+function FilterButton() {
+    // Filter lives on the root stack, so navigate with the root-typed navigation.
+    const navigation = useNavigation();
+    return (
+        <Pressable onPress={() => navigation.navigate("Filter")} hitSlop={12} accessibilityLabel="Filters" style={styles.filterButton}>
+            <Text style={styles.filterText}>Filter</Text>
+        </Pressable>
+    );
+}
+
 export function HomeStackNavigator() {
     return (
-        <HomeStack.Navigator screenOptions={stackScreenOptions}>
+        <HomeStack.Navigator screenOptions={homeStackOptions}>
             <HomeStack.Screen
                 name="HomeMain"
                 component={HomeScreen}
@@ -34,7 +82,27 @@ export function HomeStackNavigator() {
             <HomeStack.Screen
                 name="ProductListing"
                 component={ProductListingScreen}
-                options={({ route }) => ({ title: route.params?.category ?? "All products" })}
+                options={({ route }) => ({
+                    title: route.params?.category ?? "All products",
+                    headerRight: () => <FilterButton />,
+                })}
+            />
+            <HomeStack.Screen
+                name="ProductDetail"
+                component={ProductDetailScreen}
+                options={{
+                    title: "Product",
+                    // Slide in from the right.
+                    cardStyleInterpolator: CardStyleInterpolators.forHorizontalIOS,
+                }}
+            />
+            <HomeStack.Screen
+                name="EditAddress"
+                component={EditAddressScreen}
+                options={{
+                    title: "Edit address",
+                    cardStyleInterpolator: forRiseAndFade,
+                }}
             />
         </HomeStack.Navigator>
     );
@@ -46,7 +114,7 @@ export function CategoriesStackNavigator() {
             <CategoriesStack.Screen
                 name="CategoriesMain"
                 component={CategoriesScreen}
-                options={{ title: "Categories", headerLeft: renderMenu }}
+                options={{ title: "Categories", headerLeft: renderMenu, headerShadowVisible: false }}
             />
         </CategoriesStack.Navigator>
     );

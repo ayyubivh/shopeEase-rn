@@ -12,7 +12,8 @@ import {
 } from "react-native";
 import { useNavigation } from "@react-navigation/native";
 import type { NativeStackNavigationProp } from "@react-navigation/native-stack";
-import type { HomeStackParamList } from "../navigation/TabStacks";
+import { useOpenProduct } from "../navigation/openProduct";
+import type { HomeStackParamList } from "../navigation/types";
 import ProductCard from "../components/ProductCard";
 import Screen from "../components/Screen";
 import type { Category, Product } from "../api/types";
@@ -29,6 +30,7 @@ const NO_CATEGORIES: Category[] = [];
 export default function HomeScreen() {
     const navigation = useNavigation<NativeStackNavigationProp<HomeStackParamList>>();
     const user = useAuthStore((s) => s.user);
+    const openProduct = useOpenProduct();
     const { data: productsData, isLoading, error, reload: reloadProducts } = useProducts();
     const { data: categoriesData, reload: reloadCategories } = useCategories();
     const products = productsData ?? NO_PRODUCTS;
@@ -145,7 +147,7 @@ export default function HomeScreen() {
                         keyExtractor={(p) => String(p.id)}
                         showsHorizontalScrollIndicator={false}
                         contentContainerStyle={styles.productRow}
-                        renderItem={({ item }) => <ProductCard product={item} style={styles.productCard} />}
+                        renderItem={({ item }) => <ProductCard product={item} style={styles.productCard} onPress={() => openProduct(item.id)} />}
                     />
                 )}
             </ScrollView>

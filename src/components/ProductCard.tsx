@@ -1,16 +1,17 @@
 import React from "react";
-import { Image, StyleProp, StyleSheet, Text, View, ViewStyle } from "react-native";
+import { Image, Pressable, StyleProp, StyleSheet, Text, View, ViewStyle } from "react-native";
 import { Product } from "../api/types";
 import { colors, homeColors } from "../theme/colors";
 
 type ProductCardProps = {
     product: Product;
     style?: StyleProp<ViewStyle>;
+    onPress?: () => void;
 };
 
-export default function ProductCard({ product, style }: ProductCardProps) {
+export default function ProductCard({ product, style, onPress }: ProductCardProps) {
     return (
-        <View style={[styles.card, style]}>
+        <Pressable style={[styles.card, style]} onPress={onPress} accessibilityRole="button" accessibilityLabel={product.name}>
             <Image source={{ uri: product.image }} style={styles.image} resizeMode="cover" />
             <Text style={styles.name} numberOfLines={1}>
                 {product.name}
@@ -19,7 +20,7 @@ export default function ProductCard({ product, style }: ProductCardProps) {
                 <Text style={styles.price}>${product.price.toFixed(2)}</Text>
                 <Text style={styles.rating}>★ {product.rating.toFixed(1)}</Text>
             </View>
-        </View>
+        </Pressable>
     );
 }
 
