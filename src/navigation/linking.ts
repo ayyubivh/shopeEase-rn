@@ -11,7 +11,6 @@ export const linking: LinkingOptions<RootStackParamList> = {
                     Tabs: {
                         screens: {
                             Home: {
-                                // Cold-start links still get HomeMain underneath, so back doesn't exit the app.
                                 initialRouteName: "HomeMain",
                                 screens: {
                                     ProductDetail: {

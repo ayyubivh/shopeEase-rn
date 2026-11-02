@@ -11,6 +11,7 @@ export default function MenuButton() {
             onPress={() => navigation.dispatch(DrawerActions.openDrawer())}
             hitSlop={12}
             accessibilityLabel="Open menu"
+            style={styles.button}
         >
             <Text style={styles.icon}>☰</Text>
         </Pressable>
@@ -18,5 +19,6 @@ export default function MenuButton() {
 }
 
 const styles = StyleSheet.create({
+    button: { marginLeft: 16, marginRight: 12 },
     icon: { fontSize: 22, color: colors.primary },
 });

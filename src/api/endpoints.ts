@@ -1,5 +1,5 @@
 import { api } from "./client";
-import type { Category, LoginResponse, Product } from "./types";
+import type { Category, LoginResponse, Product, ProductsPage, ProductsQuery } from "./types";
 
 // Every backend endpoint lives here; screens use these through hooks in src/hooks.
 export const loginApi = (email: string, password: string) =>
@@ -14,8 +14,12 @@ export const registerApi = async (name: string, email: string, password: string)
 export const getProduct = (id: number) =>
     api.get<{ product: Product }>(`/api/products/${id}`).then((r) => r.data.product);
 
+// The API paginates (default 10, max 100), so un-paginated callers ask for the max page size.
 export const getProducts = () =>
-    api.get<{ products: Product[] }>("/api/products").then((r) => r.data.products);
+    api.get<ProductsPage>("/api/products", { params: { limit: 100 } }).then((r) => r.data.products);
+
+export const getProductsPage = (params: ProductsQuery) =>
+    api.get<ProductsPage>("/api/products", { params }).then((r) => r.data);
 
 export const getCategories = () =>
     api.get<{ categories: Category[] }>("/api/categories").then((r) => r.data.categories);

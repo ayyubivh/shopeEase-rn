@@ -1,4 +1,4 @@
-import React, { useMemo, useState } from "react";
+import React from "react";
 import { ActivityIndicator, FlatList, StyleSheet, Text, View } from "react-native";
 import { useRoute } from "@react-navigation/native";
 import type { NativeStackScreenProps } from "@react-navigation/native-stack";
@@ -6,42 +6,33 @@ import ProductCard from "../components/ProductCard";
 import Screen from "../components/Screen";
 import { useOpenProduct } from "../navigation/openProduct";
 import type { HomeStackParamList } from "../navigation/types";
-import type { Product } from "../api/types";
-import { useProducts } from "../hooks/useCatalog";
+import { useProductPages } from "../hooks/useProductPages";
 import { useFilterStore } from "../store/filterStore";
 import { colors } from "../theme/colors";
 import { spacing } from "../theme/spacing";
 
 const PAGE_SIZE = 6;
-const NO_PRODUCTS: Product[] = [];
+const SORT_PARAM = { priceAsc: "price_asc", priceDesc: "price_desc", rating: "rating" } as const;
 
 type Props = NativeStackScreenProps<HomeStackParamList, "ProductListing">;
 
 export default function ProductListingScreen(_: Props) {
     const category = useRoute<Props["route"]>().params?.category ?? null;
-    const { data, isLoading, error } = useProducts();
-    const products = data ?? NO_PRODUCTS;
-    const [page, setPage] = useState(1);
     const openProduct = useOpenProduct();
     const { sort, minRating } = useFilterStore();
-
-    // The API returns the full list, so paginate on the client.
-    const filtered = useMemo(() => {
-        const list = products.filter(
-            (p) => (!category || p.category === category) && p.rating >= minRating,
-        );
-        if (sort === "priceAsc") return [...list].sort((a, b) => a.price - b.price);
-        if (sort === "priceDesc") return [...list].sort((a, b) => b.price - a.price);
-        if (sort === "rating") return [...list].sort((a, b) => b.rating - a.rating);
-        return list;
-    }, [products, category, sort, minRating]);
-    const visible = filtered.slice(0, page * PAGE_SIZE);
-    const hasMore = visible.length < filtered.length;
+    const { products, isLoading, isLoadingMore, error, loadMore } = useProductPages(
+        {
+            category: category ?? undefined,
+            minRating: minRating > 0 ? minRating : undefined,
+            sort: sort === "none" ? undefined : SORT_PARAM[sort],
+        },
+        PAGE_SIZE,
+    );
 
     return (
         <Screen edges={["left", "right", "bottom"]}>
             <FlatList
-                data={visible}
+                data={products}
                 keyExtractor={(p) => String(p.id)}
                 numColumns={2}
                 columnWrapperStyle={styles.columns}
@@ -53,8 +44,8 @@ export default function ProductListingScreen(_: Props) {
                     </View>
                 )}
                 onEndReachedThreshold={0.4}
-                onEndReached={() => hasMore && setPage((p) => p + 1)}
-                ListFooterComponent={hasMore ? <ActivityIndicator color={colors.primary} style={styles.footer} /> : undefined}
+                onEndReached={loadMore}
+                ListFooterComponent={isLoadingMore ? <ActivityIndicator color={colors.primary} style={styles.footer} /> : undefined}
                 ListEmptyComponent={
                     isLoading ? (
                         <ActivityIndicator color={colors.primary} style={styles.footer} />

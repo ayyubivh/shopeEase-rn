@@ -27,3 +27,25 @@ export type Category = {
     name: string;
     count: number;
 };
+
+export type Pagination = {
+    page: number;
+    limit: number;
+    totalItems: number;
+    totalPages: number;
+    hasNextPage: boolean;
+    hasPrevPage: boolean;
+};
+
+export type ProductsPage = {
+    products: Product[];
+    pagination: Pagination;
+};
+
+export type ProductsQuery = {
+    page?: number;
+    limit?: number;
+    category?: string;
+    minRating?: number;
+    sort?: "price_asc" | "price_desc" | "rating" | "name" | "newest";
+};

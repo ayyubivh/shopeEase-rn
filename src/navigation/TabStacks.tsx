@@ -62,7 +62,6 @@ const styles = StyleSheet.create({
 });
 
 function FilterButton() {
-    // Filter lives on the root stack, so navigate with the root-typed navigation.
     const navigation = useNavigation();
     return (
         <Pressable onPress={() => navigation.navigate("Filter")} hitSlop={12} accessibilityLabel="Filters" style={styles.filterButton}>
