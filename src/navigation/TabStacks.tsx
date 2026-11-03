@@ -32,7 +32,6 @@ const ProfileStack = createNativeStackNavigator<ProfileStackParamList>();
 
 const renderMenu = () => <MenuButton />;
 
-// Custom transition: the screen rises, scales up and fades in.
 const forRiseAndFade: StackCardStyleInterpolator = ({ current, layouts }) => ({
     cardStyle: {
         opacity: current.progress,
@@ -91,7 +90,6 @@ export function HomeStackNavigator() {
                 component={ProductDetailScreen}
                 options={{
                     title: "Product",
-                    // Slide in from the right.
                     cardStyleInterpolator: CardStyleInterpolators.forHorizontalIOS,
                 }}
             />

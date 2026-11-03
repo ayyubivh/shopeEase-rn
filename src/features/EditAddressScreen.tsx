@@ -19,7 +19,6 @@ export default function EditAddressScreen({ navigation, route }: Props) {
     const isDirty = (Object.keys(initial) as (keyof Address)[]).some((k) => form[k] !== initial[k]);
     const isValid = Object.values(form).every((v) => v.trim().length > 0);
 
-    // Fires for header back, Android hardware back and the iOS swipe gesture alike.
     useEffect(() => {
         return navigation.addListener("beforeRemove", (e) => {
             if (!isDirty || saved.current) return;
@@ -35,7 +34,6 @@ export default function EditAddressScreen({ navigation, route }: Props) {
 
     const save = () => {
         saved.current = true;
-        // Return the updated address to the product screen below us in the stack.
         const productRoute = navigation.getState().routes.find((r) => r.name === "ProductDetail");
         const id = (productRoute?.params as HomeStackParamList["ProductDetail"] | undefined)?.id;
         if (id !== undefined) {

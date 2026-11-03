@@ -23,8 +23,6 @@ function AuthStack() {
 export default function AppNavigator() {
     const token = useAuthStore((state) => state.token);
 
-    // Screens are mounted conditionally on auth state: signing in/out swaps the whole tree,
-    // so there is no route to go "back" to from either side.
     return (
         <NavigationContainer linking={linking}>
             <Root.Navigator screenOptions={{ headerShown: false }}>

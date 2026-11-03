@@ -38,7 +38,7 @@ export default function HomeScreen() {
     const [query, setQuery] = useState("");
     const [category, setCategory] = useState<string | null>(null);
 
-    // Categories are optional UI, so a failure there must not blank the whole screen.
+
     const load = useCallback(() => {
         reloadProducts();
         reloadCategories();
