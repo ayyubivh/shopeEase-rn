@@ -1,45 +1,38 @@
-import React, { useEffect, useState } from "react";
-import { ActivityIndicator, FlatList, Pressable, StyleSheet, Text, View } from "react-native";
-import { useNavigation, useRoute } from "@react-navigation/native";
+import React from "react";
+import { ActivityIndicator, FlatList, StyleSheet, Text, View } from "react-native";
+import { useRoute } from "@react-navigation/native";
 import type { NativeStackScreenProps } from "@react-navigation/native-stack";
 import ProductCard from "../components/ProductCard";
 import Screen from "../components/Screen";
-import type { RootStackParamList } from "../navigation/AppNavigator";
-import { useProductStore } from "../store/productStore";
+import { useOpenProduct } from "../navigation/openProduct";
+import type { HomeStackParamList } from "../navigation/types";
+import { useProductPages } from "../hooks/useProductPages";
+import { useFilterStore } from "../store/filterStore";
 import { colors } from "../theme/colors";
 import { spacing } from "../theme/spacing";
 
 const PAGE_SIZE = 6;
+const SORT_PARAM = { priceAsc: "price_asc", priceDesc: "price_desc", rating: "rating" } as const;
 
-type Props = NativeStackScreenProps<RootStackParamList, "ProductListing">;
+type Props = NativeStackScreenProps<HomeStackParamList, "ProductListing">;
 
 export default function ProductListingScreen(_: Props) {
-    const navigation = useNavigation();
     const category = useRoute<Props["route"]>().params?.category ?? null;
-    const { products, productsLoading: isLoading, productsError: error, fetchProducts } = useProductStore();
-    const [page, setPage] = useState(1);
-
-    useEffect(() => {
-        if (products.length === 0) {
-            fetchProducts();
-        }
-    }, [products.length, fetchProducts]);
-
-    // The API returns the full list, so paginate on the client.
-    const filtered = category ? products.filter((p) => p.category === category) : products;
-    const visible = filtered.slice(0, page * PAGE_SIZE);
-    const hasMore = visible.length < filtered.length;
+    const openProduct = useOpenProduct();
+    const { sort, minRating } = useFilterStore();
+    const { products, isLoading, isLoadingMore, error, loadMore } = useProductPages(
+        {
+            category: category ?? undefined,
+            minRating: minRating > 0 ? minRating : undefined,
+            sort: sort === "none" ? undefined : SORT_PARAM[sort],
+        },
+        PAGE_SIZE,
+    );
 
     return (
-        <Screen>
-            <View style={styles.header}>
-                <Pressable onPress={navigation.goBack} hitSlop={12}>
-                    <Text style={styles.back}>‹ Back</Text>
-                </Pressable>
-                <Text style={styles.title}>{category ?? "All products"}</Text>
-            </View>
+        <Screen edges={["left", "right", "bottom"]}>
             <FlatList
-                data={visible}
+                data={products}
                 keyExtractor={(p) => String(p.id)}
                 numColumns={2}
                 columnWrapperStyle={styles.columns}
@@ -47,12 +40,12 @@ export default function ProductListingScreen(_: Props) {
                 showsVerticalScrollIndicator={false}
                 renderItem={({ item }) => (
                     <View style={styles.cell}>
-                        <ProductCard product={item} />
+                        <ProductCard product={item} onPress={() => openProduct(item.id)} />
                     </View>
                 )}
                 onEndReachedThreshold={0.4}
-                onEndReached={() => hasMore && setPage((p) => p + 1)}
-                ListFooterComponent={hasMore ? <ActivityIndicator color={colors.primary} style={styles.footer} /> : undefined}
+                onEndReached={loadMore}
+                ListFooterComponent={isLoadingMore ? <ActivityIndicator color={colors.primary} style={styles.footer} /> : undefined}
                 ListEmptyComponent={
                     isLoading ? (
                         <ActivityIndicator color={colors.primary} style={styles.footer} />
@@ -66,10 +59,7 @@ export default function ProductListingScreen(_: Props) {
 }
 
 const styles = StyleSheet.create({
-    header: { paddingVertical: spacing.md },
-    back: { fontSize: 16, fontWeight: "600", color: colors.primary },
-    title: { marginTop: spacing.sm, fontSize: 26, fontWeight: "800", color: colors.textPrimary },
-    content: { paddingBottom: spacing.lg },
+    content: { paddingTop: spacing.md, paddingBottom: spacing.lg },
     columns: { gap: 12, marginBottom: 12 },
     cell: { flex: 1 },
     footer: { paddingVertical: spacing.md },

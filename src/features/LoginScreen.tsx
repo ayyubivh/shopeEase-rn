@@ -9,26 +9,34 @@ import TextField from "../components/TextField";
 import { colors } from "../theme/colors";
 import { spacing } from "../theme/spacing";
 import PrimaryButton from "../components/PrimaryButton";
-import { useNavigation } from "@react-navigation/native";
-import { NativeStackNavigationProp } from "@react-navigation/native-stack";
-import { RootStackParamList } from "../navigation/AppNavigator";
+import type { NativeStackScreenProps } from "@react-navigation/native-stack";
+import type { AuthStackParamList } from "../navigation/types";
+import { loginApi } from "../api/endpoints";
 import { useAuthStore } from "../store/authStore";
 
-export default function LoginScreen() {
-    const navigation = useNavigation<NativeStackNavigationProp<RootStackParamList>>();
+type Props = NativeStackScreenProps<AuthStackParamList, "Login">;
+
+export default function LoginScreen({ navigation }: Props) {
 
     const [email, setEmail] = useState("");
     const [password, setPassword] = useState("");
     const [isPasswordVisible, setIsPasswordVisible] = useState(false);
 
-    const login = useAuthStore(state => state.login);
-    const isLoading = useAuthStore(state => state.isLoading);
-    const error = useAuthStore(state => state.error);
+    const setSession = useAuthStore(state => state.setSession);
+    const [isLoading, setIsLoading] = useState(false);
+    const [error, setError] = useState<string | null>(null);
 
     const handleLogin = async () => {
-        const success = await login(email.trim(), password);
-        if (success) {
-            navigation.replace("Main");
+        setIsLoading(true);
+        setError(null);
+        try {
+            const data = await loginApi(email.trim(), password);
+            // The root navigator swaps to the main app as soon as a session exists.
+            setSession(data.token, data.user);
+        } catch (e) {
+            setError(e instanceof Error ? e.message : "Something went wrong. Please try again.");
+        } finally {
+            setIsLoading(false);
         }
     };
 
@@ -86,12 +94,16 @@ export default function LoginScreen() {
                     disabled={!email || !password || isLoading}
                 />
             </View>
-            {/* <Text style={styles.forgotPassword}>Forgot password?</Text> */}
+            <Pressable onPress={() => navigation.navigate("Register")} style={styles.registerLink}>
+                <Text style={styles.registerText}>New here? Create an account</Text>
+            </Pressable>
         </Screen>
     );
 }
 
 const styles = StyleSheet.create({
+    registerLink: { alignItems: "center", paddingVertical: spacing.sm },
+    registerText: { fontSize: 15, fontWeight: "700", color: colors.primary },
     screen: {
         paddingTop: spacing.xl,
         gap: spacing.xl,
